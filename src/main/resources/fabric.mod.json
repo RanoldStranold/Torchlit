@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "torchlit",
+  "version": "${version}",
+
+  "name": "Torchlit",
+  "authors": ["Ranold"],
+  "contact": {
+    "sources": "https://github.com/RanoldStranold/Torchlit",
+    "issues": "https://github.com/RanoldStranold/Torchlit/issues"
+  },
+
+  "license": "All-Rights-Reserved",
+
+  "environment": "client",
+  "entrypoints": {
+    "client": ["net.ranold.client.torchlitClient"],
+    "main": ["net.ranold.torchlit"],
+    "modmenu": ["net.ranold.config.TorchlitModMenu"]
+  },
+
+  "mixins": [
+    "torchlit.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  },
+
+  "suggests": {
+    "cloth-config": "*",
+    "modmenu": "*"
+  }
+}
