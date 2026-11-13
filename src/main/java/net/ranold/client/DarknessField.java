@@ -2,6 +2,8 @@ package net.ranold.client;
 
 import java.util.List;
 
+import org.joml.Vector2f;
+
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Mth;
 import net.ranold.client.GuiShapeRecorder.Blit;
@@ -24,9 +26,41 @@ public final class DarknessField {
 
         int step = Mth.clamp(InventoryDarkness.CELL_SIZE, 1, 32);
 
-        for (Blit sprite : sprites) {
+        float[][] bounds = new float[sprites.size()][];
+        for (int i = 0; i < sprites.size(); i++) {
+            Blit sprite = sprites.get(i);
+            bounds[i] = screenBounds(sprite);
+            // masks stack: a button inside the panel would be darkened twice
+            if (coveredByEarlier(bounds, i)) {
+                continue;
+            }
             submitSprite(graphics, sprite, step, ambient, lights, maxDarkness);
         }
+    }
+
+    private static boolean coveredByEarlier(float[][] bounds, int index) {
+        float[] inner = bounds[index];
+        for (int i = 0; i < index; i++) {
+            float[] outer = bounds[i];
+            if (outer[0] <= inner[0] && outer[1] <= inner[1] && outer[2] >= inner[2] && outer[3] >= inner[3]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static float[] screenBounds(Blit sprite) {
+        Vector2f corner = new Vector2f();
+        float minX = Float.MAX_VALUE, minY = Float.MAX_VALUE, maxX = -Float.MAX_VALUE, maxY = -Float.MAX_VALUE;
+        for (int c = 0; c < 4; c++) {
+            sprite.pose().transformPosition((c & 1) == 0 ? sprite.x0() : sprite.x1(),
+                    (c & 2) == 0 ? sprite.y0() : sprite.y1(), corner);
+            minX = Math.min(minX, corner.x);
+            minY = Math.min(minY, corner.y);
+            maxX = Math.max(maxX, corner.x);
+            maxY = Math.max(maxY, corner.y);
+        }
+        return new float[] {minX, minY, maxX, maxY};
     }
 
     private static void submitSprite(GuiGraphicsExtractor graphics, Blit sprite, int step,
