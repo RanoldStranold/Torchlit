@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen;
@@ -31,9 +30,7 @@ public final class GuiDarkness {
     private GuiDarkness() {
     }
 
-    private static float frameAmbient;
-    private static List<PointLight> frameLights = List.of();
-    private static boolean frameActive;
+    private static final GuiTint.Context CONTEXT = new GuiTint.Context();
 
     public static boolean appliesTo(Screen screen) {
         if (screen instanceof AbstractContainerScreen<?>) {
@@ -64,13 +61,19 @@ public final class GuiDarkness {
 
     public static void resetSmoothing() {
         SMOOTHER.reset();
-        frameActive = false;
     }
 
-    public static void render(GuiGraphicsExtractor graphics, Screen screen,
-                              List<GuiShapeRecorder.Blit> drawn, int mouseX, int mouseY) {
-        frameActive = false;
+    // everything the screen adds from here is tinted once compute() has set the light
+    public static void begin() {
+        CONTEXT.resetUnbounded();
+        GuiTint.begin(CONTEXT);
+    }
 
+    public static void end() {
+        GuiTint.end();
+    }
+
+    public static void compute(Screen screen, int mouseX, int mouseY) {
         if (!appliesTo(screen)) {
             return;
         }
@@ -105,19 +108,7 @@ public final class GuiDarkness {
                     access.torchlit$leftPos(), access.torchlit$topPos(), mouseX, mouseY);
         }
 
-        frameAmbient = ambient;
-        frameLights = lights;
-        frameActive = true;
-
-        DarknessField.submit(graphics, drawn, ambient, lights, TorchlitConfig.get().containerDarkness / 100.0f);
-    }
-
-    public static void renderDeferred(GuiGraphicsExtractor graphics, List<GuiShapeRecorder.Blit> drawn) {
-        if (!frameActive || drawn.isEmpty()) {
-            return;
-        }
-
-        DarknessField.submit(graphics, drawn, frameAmbient, frameLights, TorchlitConfig.get().containerDarkness / 100.0f);
+        CONTEXT.set(ambient, lights, TorchlitConfig.get().containerDarkness / 100.0f);
     }
 
     private static List<PointLight> collectLights(AbstractContainerMenu menu, int panelX, int panelY,

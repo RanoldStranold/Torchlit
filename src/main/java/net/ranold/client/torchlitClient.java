@@ -9,7 +9,6 @@ public class torchlitClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         TorchlitConfig.load();
-        DarknessPipeline.init();
         ClientTickEvents.END_CLIENT_TICK.register(EyeAdaptation::tick);
     }
 }

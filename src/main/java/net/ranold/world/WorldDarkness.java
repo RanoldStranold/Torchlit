@@ -26,6 +26,12 @@ public final class WorldDarkness {
     public static final float MIN_FOG_CHANNEL = 0.03f;
 
     private static final float RAIN_MOON_COVER = 0.6f;
+    private static final float RAIN_SUN_COVER = 0.3f;
+    private static final float THUNDER_SUN_COVER = 0.3f;
+
+    // must match WeatherAttributes RAIN / THUNDER alpha on sky_light_level and sky_light_factor
+    private static final float VANILLA_RAIN_BLEND = 0.3125f;
+    private static final float VANILLA_THUNDER_BLEND = 0.52734375f;
 
     // full, gibbous, half, crescent, new
     private static final float[] MOON_BRIGHTNESS = {1.0f, 0.75f, 0.45f, 0.06f, 0.0f};
@@ -70,32 +76,51 @@ public final class WorldDarkness {
 
     private static float nightFactor(float vanillaSkyFactor, float partialTicks) {
         Camera camera = Minecraft.getInstance().gameRenderer.mainCamera();
+        ClientLevel level = Minecraft.getInstance().level;
+
+        // vanilla weather pulls both tracks toward night; take it back out so a storm never counts as night
+        float rainBlend = 0.0f;
+        float thunderBlend = 0.0f;
+        if (level != null && level.canHaveWeather()) {
+            float thunder = level.getThunderLevel(1.0f);
+            rainBlend = Math.max(0.0f, level.getRainLevel(1.0f) - thunder) * VANILLA_RAIN_BLEND;
+            thunderBlend = thunder * VANILLA_THUNDER_BLEND;
+        }
+        float skyLevel = clearValue(camera.attributeProbe().getValue(EnvironmentAttributes.SKY_LIGHT_LEVEL, partialTicks),
+                NIGHT_SKY_LEVEL, rainBlend, thunderBlend);
+        float skyFactor = clearValue(vanillaSkyFactor, NIGHT_SKY_FACTOR, rainBlend, thunderBlend);
 
         // level track = gameplay (mobs burn ~23640), factor track = render (End flashes add to it). linear: a curve only delays dawn
-        float skyLevel = camera.attributeProbe().getValue(EnvironmentAttributes.SKY_LIGHT_LEVEL, partialTicks);
         float dayness = Math.max(
                 Mth.clamp((skyLevel - NIGHT_SKY_LEVEL) / (DAY_SKY_LEVEL - NIGHT_SKY_LEVEL), 0.0f, 1.0f),
-                Mth.clamp((vanillaSkyFactor - NIGHT_SKY_FACTOR) / (1.0f - NIGHT_SKY_FACTOR), 0.0f, 1.0f));
+                Mth.clamp((skyFactor - NIGHT_SKY_FACTOR) / (1.0f - NIGHT_SKY_FACTOR), 0.0f, 1.0f));
 
         MoonPhase phase = camera.attributeProbe().getValue(EnvironmentAttributes.MOON_PHASE, partialTicks);
 
         int fromFull = Math.min(phase.index(), MoonPhase.COUNT - phase.index());
         TorchlitConfig config = TorchlitConfig.get();
-        ClientLevel current = Minecraft.getInstance().level;
-        float dimension = current == null ? 1.0f : TorchlitConfig.dimensionStrength(current.dimension());
+        float dimension = level == null ? 1.0f : TorchlitConfig.dimensionStrength(level.dimension());
         float moonBrightness = Mth.lerp(config.moonInfluence / 100.0f * dimension,
                 1.0f, MOON_BRIGHTNESS[Mth.clamp(fromFull, 0, MOON_BRIGHTNESS.length - 1)]);
 
-        ClientLevel level = Minecraft.getInstance().level;
+        // weather covers the moon by night and dims the sun by day, on top of vanilla's own storm dimming
+        float nightCover = 0.0f;
+        float dayCover = 0.0f;
         if (level != null) {
-            // vanilla weather darkening does nothing at night
             float rain = level.getRainLevel(partialTicks);
             float thunder = level.getThunderLevel(partialTicks);
-            float cover = (RAIN_MOON_COVER * rain + THUNDER_MOON_COVER * thunder) * config.weatherInfluence / 100.0f * dimension;
-            moonBrightness *= Mth.clamp(1.0f - cover, 0.0f, 1.0f);
+            float strength = config.weatherInfluence / 100.0f * dimension;
+            nightCover = Mth.clamp((RAIN_MOON_COVER * rain + THUNDER_MOON_COVER * thunder) * strength, 0.0f, 1.0f);
+            dayCover = Mth.clamp((RAIN_SUN_COVER * rain + THUNDER_SUN_COVER * thunder) * strength, 0.0f, 1.0f);
         }
 
-        return Mth.lerp(dayness, moonBrightness, 1.0f);
+        return Mth.lerp(dayness, moonBrightness * (1.0f - nightCover), 1.0f - dayCover);
+    }
+
+    // undoes WeatherAttributes: rain blends toward the night value by 0.3125 x (rain - thunder), then thunder by 0.527 x thunder
+    private static float clearValue(float value, float night, float rainBlend, float thunderBlend) {
+        float beforeThunder = (value - night * thunderBlend) / (1.0f - thunderBlend);
+        return (beforeThunder - night * rainBlend) / (1.0f - rainBlend);
     }
 
     public static boolean isDarkening() {

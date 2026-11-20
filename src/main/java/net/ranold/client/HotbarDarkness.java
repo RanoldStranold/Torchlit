@@ -26,7 +26,25 @@ public final class HotbarDarkness {
     private HotbarDarkness() {
     }
 
-    public static void render(GuiGraphicsExtractor graphics, List<GuiShapeRecorder.Blit> drawn) {
+    private static final GuiTint.Context CONTEXT = new GuiTint.Context();
+    private static int left;
+    private static int hotbarTop;
+
+    // only what overlaps the hotbar (and the status bars when they darken) is tinted
+    public static void begin(GuiGraphicsExtractor graphics) {
+        left = graphics.guiWidth() / 2 - HOTBAR_WIDTH / 2;
+        hotbarTop = graphics.guiHeight() - HOTBAR_HEIGHT;
+        int top = TorchlitConfig.get().darkenStatusBars ? hotbarTop - STATUS_BAR_HEIGHT : hotbarTop;
+        CONTEXT.reset(left, top, left + HOTBAR_WIDTH, graphics.guiHeight());
+        GuiTint.begin(CONTEXT);
+    }
+
+    public static void finish() {
+        GuiTint.end();
+        compute();
+    }
+
+    private static void compute() {
         if (TorchlitConfig.get().hotbarDarkness <= 0) {
             return;
         }
@@ -49,19 +67,8 @@ public final class HotbarDarkness {
             return;
         }
 
-        int left = graphics.guiWidth() / 2 - HOTBAR_WIDTH / 2;
-        int hotbarTop = graphics.guiHeight() - HOTBAR_HEIGHT;
-
         List<PointLight> lights = collectLights(client.player, left, hotbarTop);
-
-        int top = TorchlitConfig.get().darkenStatusBars ? hotbarTop - STATUS_BAR_HEIGHT : hotbarTop;
-        int right = left + HOTBAR_WIDTH;
-        int bottom = graphics.guiHeight();
-        List<GuiShapeRecorder.Blit> hud = drawn.stream()
-                .filter(blit -> blit.intersects(left, top, right, bottom))
-                .toList();
-
-        DarknessField.submit(graphics, hud, ambient, lights, TorchlitConfig.get().hotbarDarkness / 100.0f);
+        CONTEXT.set(ambient, lights, TorchlitConfig.get().hotbarDarkness / 100.0f);
     }
 
     private static List<PointLight> collectLights(Player player, int left, int top) {

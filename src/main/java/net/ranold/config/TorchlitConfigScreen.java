@@ -57,6 +57,7 @@ public final class TorchlitConfigScreen {
             dimensions.add(entries.startIntSlider(Component.literal(id), dimension.getValue(), 0, 100)
                     .setDefaultValue(100)
                     .setTextGetter(percent -> Component.literal(percent + "%"))
+                    .setTooltip(Component.translatable("torchlit.config.dimension.tooltip"))
                     .setSaveConsumer(value -> config.dimensionDarkness.put(id, value))
                     .build());
         }
@@ -67,6 +68,12 @@ public final class TorchlitConfigScreen {
                 value -> config.containerDarkness = value));
         hud.addEntry(percent(entries, "hotbar_darkness", config.hotbarDarkness, defaults.hotbarDarkness,
                 value -> config.hotbarDarkness = value));
+        hud.addEntry(entries.startIntSlider(Component.translatable("torchlit.config.light_detail"), config.lightDetail, 1, 16)
+                .setDefaultValue(defaults.lightDetail)
+                .setTextGetter(pixels -> Component.literal(pixels + " px"))
+                .setTooltip(Component.translatable("torchlit.config.light_detail.tooltip"))
+                .setSaveConsumer(value -> config.lightDetail = value)
+                .build());
         hud.addEntry(toggle(entries, "books_and_signs", config.darkenBooksAndSigns, defaults.darkenBooksAndSigns,
                 value -> config.darkenBooksAndSigns = value));
         hud.addEntry(toggle(entries, "status_bars", config.darkenStatusBars, defaults.darkenStatusBars,
@@ -82,6 +89,8 @@ public final class TorchlitConfigScreen {
                 .setDefaultValue(TorchlitConfig.Preset.DEFAULT)
                 .setEnumNameProvider(preset -> Component.translatable(
                         "torchlit.config.preset." + preset.name().toLowerCase(java.util.Locale.ROOT)))
+                .setTooltip(Component.translatable("torchlit.config.preset.tooltip.casual"),
+                        Component.translatable("torchlit.config.preset.tooltip.hardcore"))
                 .setSaveConsumer(value -> chosenPreset[0] = value)
                 .build());
 
@@ -113,6 +122,7 @@ public final class TorchlitConfigScreen {
         return entries.startIntSlider(Component.translatable("torchlit.config." + key), value, 0, 100)
                 .setDefaultValue(defaultValue)
                 .setTextGetter(percent -> Component.literal(percent + "%"))
+                .setTooltip(Component.translatable("torchlit.config." + key + ".tooltip"))
                 .setSaveConsumer(save)
                 .build();
     }
@@ -121,6 +131,7 @@ public final class TorchlitConfigScreen {
             ConfigEntryBuilder entries, String key, boolean value, boolean defaultValue, Consumer<Boolean> save) {
         return entries.startBooleanToggle(Component.translatable("torchlit.config." + key), value)
                 .setDefaultValue(defaultValue)
+                .setTooltip(Component.translatable("torchlit.config." + key + ".tooltip"))
                 .setSaveConsumer(save)
                 .build();
     }

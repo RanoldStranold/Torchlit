@@ -4,6 +4,7 @@
   "version": "${version}",
 
   "name": "Torchlit",
+  "description": "\\"Oh, you think darkness is your ally. But you merely adopted the dark; I was born in it, moulded by it. I didn't see the light until I was already a man, by then it was nothing to me but BLINDING!\\"\\n\\n-Ranold 2012",
   "authors": ["Ranold"],
   "contact": {
     "sources": "https://github.com/RanoldStranold/Torchlit",
@@ -11,12 +12,14 @@
   },
 
   "license": "All-Rights-Reserved",
+  "icon": "assets/torchlit/icon.png",
 
   "environment": "client",
   "entrypoints": {
     "client": ["net.ranold.client.torchlitClient"],
     "main": ["net.ranold.torchlit"],
-    "modmenu": ["net.ranold.config.TorchlitModMenu"]
+    "modmenu": ["net.ranold.config.TorchlitModMenu"],
+    "sodium:config_api_user": ["net.ranold.config.TorchlitSodiumConfig"]
   },
 
   "mixins": [

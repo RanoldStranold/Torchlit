@@ -1,0 +1,36 @@
+name: Bug
+description: Ex. darkness not applying, menus not darkening, or anything else that isn't a crash or feature request
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: input
+    id: mod-version
+    attributes:
+      label: "Mod Version"
+      description: "What version of Torchlit are you using?"
+      placeholder: "e.g., v1.1"
+    validations:
+      required: true
+  - type: input
+    id: other-mod-version
+    attributes:
+      label: "Other mods being used"
+      description: "What other mods are you using, and what versions?"
+      placeholder: "e.g., Sodium 0.9.#, voxy 0.2.#"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: "Description"
+      description: "Any information you find relevant, could be a log file or complete modlist"
+      placeholder: "Describe the issue here..."
+    validations:
+      required: true
+  - type: checkboxes
+    id: config-confirmation
+    attributes:
+      label: "I can read"
+      options:
+        - label: "If it's just too dark for me, I tried lowering the sliders in the config first"
+          required: true

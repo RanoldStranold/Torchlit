@@ -8,11 +8,11 @@
   "client": [
     "client.AbstractContainerScreenAccessor",
     "client.ClientLevelAccessor",
-    "client.MixinAbstractContainerScreen",
     "client.MixinAbstractWidget",
     "client.MixinAtmosphericFogEnvironment",
     "client.MixinGui",
-    "client.MixinGuiGraphicsExtractor",
+    "client.MixinGuiRenderState",
+    "client.MixinGuiRenderer",
     "client.MixinHud",
     "client.MixinLightmap",
     "client.MixinLightmapRenderStateExtractor",

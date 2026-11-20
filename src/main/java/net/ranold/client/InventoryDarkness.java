@@ -19,8 +19,6 @@ public final class InventoryDarkness {
 
     public static final float CURVE = 1.0f;
 
-    public static final int CELL_SIZE = 8;
-
     public static final float LIGHT_RADIUS_PER_LUMINANCE = 4.0f;
 
     public static final boolean RESPECT_DYNAMIC_LIGHTS = true;

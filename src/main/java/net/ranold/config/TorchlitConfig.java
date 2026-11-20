@@ -37,6 +37,8 @@ public final class TorchlitConfig {
 
     public int containerDarkness = 99;
     public int hotbarDarkness = 98;
+    // gui pixels between light samples in menus and the hotbar
+    public int lightDetail = 6;
     public boolean darkenBooksAndSigns = true;
     public boolean darkenStatusBars = false;
     public boolean itemsEmitLight = true;
@@ -148,6 +150,7 @@ public final class TorchlitConfig {
         this.eyeAdaptation = clampPercent(this.eyeAdaptation);
         this.containerDarkness = clampPercent(this.containerDarkness);
         this.hotbarDarkness = clampPercent(this.hotbarDarkness);
+        this.lightDetail = Math.max(1, Math.min(16, this.lightDetail));
         if (this.dimensionDarkness == null) {
             this.dimensionDarkness = new LinkedHashMap<>();
         }

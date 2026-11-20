@@ -40,6 +40,15 @@ dependencies {
 
     compileOnly("maven.modrinth:cloth-config:26.3.159+fabric") { transitive = false }
     compileOnly("maven.modrinth:modmenu:21.0.0") { transitive = false }
+    compileOnly("maven.modrinth:sodium:mc26.3-0.9.3-beta.1-fabric") { transitive = false }
+
+    testImplementation platform("org.junit:junit-bom:5.11.4")
+    testImplementation "org.junit.jupiter:junit-jupiter"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+}
+
+test {
+    useJUnitPlatform()
 }
 
 processResources {

@@ -1,0 +1,14 @@
+name: Feature Request
+description: Request a feature to be added to Torchlit
+title: "Request a Feature"
+labels: ["feature request"]
+body:
+  
+  - type: textarea
+    id: description
+    attributes:
+      label: "Description of the request"
+      description: "Please provide a clear and concise description of whatever it is you're requesting"
+      placeholder: "cmon lets hear it"
+    validations:
+      required: true

@@ -10,7 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.ranold.client.GuiDarkness;
-import net.ranold.client.GuiShapeRecorder;
+import net.ranold.client.GuiTint;
 
 // reading screens keep their buttons lit
 @Mixin(AbstractWidget.class)
@@ -24,7 +24,7 @@ public abstract class MixinAbstractWidget {
                                            CallbackInfo ci) {
         this.torchlit$paused = GuiDarkness.exemptsWidgets(Minecraft.getInstance().gui.screen());
         if (this.torchlit$paused) {
-            GuiShapeRecorder.pause();
+            GuiTint.pause();
         }
     }
 
@@ -33,7 +33,7 @@ public abstract class MixinAbstractWidget {
                                               CallbackInfo ci) {
         if (this.torchlit$paused) {
             this.torchlit$paused = false;
-            GuiShapeRecorder.resume();
+            GuiTint.resume();
         }
     }
 }
